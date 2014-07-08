@@ -18,6 +18,7 @@
     "passport": "~0.2.0",
     "passport-stormpath": "~0.1.0",
     "passport-oauth2": "~1.1.2",
+    "passport-twitter":"x",
     "passport-instagram": "x",
     "instagram-node": "x",
     "express-session": "~1.0.3",
