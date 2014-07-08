@@ -9,9 +9,9 @@ config.web = {};
 config.session = {};
 
 // twitter configuration
-config.twitter.user_name = process.env.TWITTER_USER || 'username';
-config.twitter.password=  process.env.TWITTER_PASSWORD || 'password';
-
+config.twitter.token = process.env.TWITTER_TOKEN || "";
+config.twitter.clientID = process.env.TWITTER_CLIENT_ID || "";
+config.twtiier.clientSecret = process.env.TWITTER_CLIENT_SECRET || "";
 
 // facebook configuration
 config.facebook.token = process.env.FB_TOKEN || "";
@@ -19,6 +19,9 @@ config.facebook.token = process.env.FB_TOKEN || "";
 
 //instagram configuration
 config.instagram.token = process.env.IG_TOKEN || "";
+config.instagram.clientID = process.env.IG_CLIENT_ID || "";
+config.instagram.clientSecret = process.env.IG_CLIENT_SECRET || "";
+
 
 // configuration for stormpath auth
 config.stormpath.apiKeyId  = process.env['STORMPATH_API_KEY_ID'] || "23UNX9YJ65XCDWS6SECHHSHSI" ;

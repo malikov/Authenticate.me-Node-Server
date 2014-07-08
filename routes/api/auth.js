@@ -8,15 +8,16 @@ var stormpath = require('stormpath');
 var config = require('../../config');
 
 var auth = function() {};
+
 auth.oauth = function(req,res){
 	var params = req.params || {};
 
 	if(params.type === 'instagram'){
-
+		// do some instagram bullshit
 	}
 
-	if(params.type === 'instagram'){
-
+	if(params.type === 'twitter'){
+		// do some twitter bs
 	}
 
 	return res.json({
@@ -103,6 +104,15 @@ auth.register = function(req,res){
 // login a user
 auth.login = function(req,res){
 	var user = req.body.user;
+	var type = req.params.type || 'default';
+
+	if(type === 'instagram'){
+		return passport.authenticate('instagram');
+	}
+
+	if(type === 'twitter'){
+		return passport.authenticate('twitter');
+	}
 
 	// check user
 	if (!user) {

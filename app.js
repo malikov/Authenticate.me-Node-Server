@@ -18,11 +18,50 @@ var session = require('express-session');
 var flash = require('connect-flash');
 
 var routes = require('./routes/index');
+var port = process.env.PORT || 3000;
 
 var app = express();
-var strategy = new StormpathStrategy(config.stormpath);
 
-passport.use(strategy);
+var stormpathStrategy = new StormpathStrategy(config.stormpath);
+// set instagram callback
+config.instagram.callbackUrl = "http://localhost:"+port+"/oauth&type=instagram";
+var igStrategy = new InstagramStrategy(config.instagram);
+
+config.twitter.callbackUrl = "http://localhost:"+port+"/oauth&type=instagram";
+var twitterStrategy = new TwitterStrategy(config.twitter);
+
+
+// setting passport with the strategies
+passport.use(stormpathStrategy);
+passport.use(igStrategy, function(accessToken, refreshToken, profile, done) {
+    console.log("passport.use instagram callback ==========");
+    console.log("refreshToken ");
+    console.log(refreshToken);
+
+    console.log("profile");
+    console.log(profile);
+
+    process.nextTick(function () {
+        console.log("process.nextTick....");
+        return done(null, profile);
+    });
+});
+
+passport.use(twitterStrategy, function(accessToken, refreshToken, profile, done) {
+    // asynchronous verification, for effect...
+    console.log("passport.use instagram callback ==========");
+    console.log("refreshToken ");
+    console.log(refreshToken);
+
+    console.log("profile");
+    console.log(profile);
+
+    process.nextTick(function () {
+        console.log("process.nextTick....");
+        return done(null, profile);
+    });
+  });
+
 passport.serializeUser(strategy.serializeUser);
 passport.deserializeUser(strategy.deserializeUser);
 
