@@ -5,65 +5,78 @@
 
 var config = require('./config');
 var express = require('express');
+var ejs = require('ejs');
 var path = require('path');
 var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
 var passport = require('passport');
+
+// Strategies
 var StormpathStrategy = require('passport-stormpath');
+var InstagramStrategy = require('passport-instagram').Strategy;
+var TwitterStrategy = require('passport-twitter').Strategy;
+var twitter = require('twitter');
+
+// instagram node
+var igNode = require('instagram-node').instagram();
+
+// 
+
+
+
+
 
 var session = require('express-session');
 var flash = require('connect-flash');
 
 var routes = require('./routes/index');
-var port = process.env.PORT || 3000;
 
 var app = express();
 
-var stormpathStrategy = new StormpathStrategy(config.stormpath);
-// set instagram callback
-config.instagram.callbackUrl = "http://localhost:"+port+"/oauth&type=instagram";
-var igStrategy = new InstagramStrategy(config.instagram);
+var strategyCallback = function(accessToken, refreshToken, profile, done) {
+    var output = JSON.parse(profile._raw);
+    //check provider
+    if(profile.provider === 'instagram'){
+        igNode.use({ access_token: accessToken });
+    }
 
-config.twitter.callbackUrl = "http://localhost:"+port+"/oauth&type=instagram";
-var twitterStrategy = new TwitterStrategy(config.twitter);
+    if(profile.provider === 'twitter'){
+
+    }
+
+    process.nextTick(function () {
+        output.data.provider = profile.provider;
+        return done(null, output.data);
+    });
+}
+
+var stormpathStrategy = new StormpathStrategy(config.stormpath);
+
+// set instagram callback
+config.instagram.callbackURL = "http://authenticate-me-node.herokuapp.com/oauth/callback?type=instagram";
+var igStrategy = new InstagramStrategy(config.instagram, strategyCallback);
+igNode.use({ 
+    client_id: config.instagram.clientID,
+    client_secret: config.instagram.clientSecret 
+});
+
+config.twitter.callbackURL = "http://authenticate-me-node.herokuapp.com/oauth/callback?type=twitter";
+var twitterStrategy = new TwitterStrategy(config.twitter, strategyCallback);
 
 
 // setting passport with the strategies
 passport.use(stormpathStrategy);
-passport.use(igStrategy, function(accessToken, refreshToken, profile, done) {
-    console.log("passport.use instagram callback ==========");
-    console.log("refreshToken ");
-    console.log(refreshToken);
+passport.use(igStrategy);
+passport.use(twitterStrategy);
 
-    console.log("profile");
-    console.log(profile);
-
-    process.nextTick(function () {
-        console.log("process.nextTick....");
-        return done(null, profile);
-    });
+passport.serializeUser(function(user, done) {
+  done(null, user);
 });
-
-passport.use(twitterStrategy, function(accessToken, refreshToken, profile, done) {
-    // asynchronous verification, for effect...
-    console.log("passport.use instagram callback ==========");
-    console.log("refreshToken ");
-    console.log(refreshToken);
-
-    console.log("profile");
-    console.log(profile);
-
-    process.nextTick(function () {
-        console.log("process.nextTick....");
-        return done(null, profile);
-    });
-  });
-
-passport.serializeUser(strategy.serializeUser);
-passport.deserializeUser(strategy.deserializeUser);
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
 
 //CORS middleware
 var allowCrossDomain = function(req, res, next) {
@@ -75,6 +88,11 @@ var allowCrossDomain = function(req, res, next) {
 }
 
 // setup
+app.set('view engine', 'ejs');
+app.set('view options', {
+    layout: false
+});
+
 app.use(favicon());
 app.use(allowCrossDomain);
 app.use(logger('dev'));

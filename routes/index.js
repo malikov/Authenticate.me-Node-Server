@@ -2,25 +2,52 @@
  * Routes
  */
 var express = require('express');
+var passport = require('passport');
 var router = express.Router();
 var api = require('./api/index');
 
+
+function ensureAuthenticated(req, res, next) {
+  if (!req.isAuthenticated()) {
+    // display an "already logged in" message
+    return res.status(401).json({payload : {}, message : "Unauthorize access"});
+  }
+  next();
+}
+
+function ensureUnauthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    // display an "already logged in" message
+    return res.json({
+	    	payload : {
+	    		user: req.session["user"]
+	    	},
+	    	message : "User logged In you can't perform this action, logout then try again"
+	    });
+  }
+  next();
+}
+
 //oauth callback
-router.get('/oauth',api.auth.oauth);
+router.get('/oauth/callback',api.auth.oauthCallback);
+router.get('/oauth/instagram',ensureUnauthenticated,passport.authenticate('instagram'));
+router.get('/oauth/twitter',ensureUnauthenticated,passport.authenticate('twitter'));
+
+
 
 //authentication
-router.get('/me', api.auth.me);
-router.post('/login',api.auth.login);
-router.post('/register',api.auth.register);
+router.get('/me',ensureAuthenticated,api.auth.me);
+router.post('/login',ensureUnauthenticated,api.auth.login);
+router.post('/register',ensureUnauthenticated,api.auth.register);
 router.get('/logout',api.auth.logout);
 
 //api/users calls
 router.get('/', api.default);
-router.get('/users', api.users.all);
+router.get('/users',ensureAuthenticated, api.users.all);
 router.post('/users', api.users.create);
 router.get('/users/:id', api.users.get);
-router.put('/users/:id', api.users.update);
-router.delete('/users/:id', api.users.delete);
+router.put('/users/:id',ensureAuthenticated, api.users.update);
+router.delete('/users/:id',ensureAuthenticated, api.users.delete);
 
 //api error
 router.get('/error', api.error);

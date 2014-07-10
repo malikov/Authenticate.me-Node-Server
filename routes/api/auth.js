@@ -9,38 +9,75 @@ var config = require('../../config');
 
 var auth = function() {};
 
-auth.oauth = function(req,res){
-	var params = req.params || {};
-
-	if(params.type === 'instagram'){
-		// do some instagram bullshit
+auth.oauthCallback = function(req,res){
+	var params = req.query || {};
+	// oauth callback
+	if(params.type !== "instagram" && params.type !== "twitter" && params.type !== "facebook"){
+		return res.status(500).json({payload : {}, message : "Undefined user"});
 	}
 
-	if(params.type === 'twitter'){
-		// do some twitter bs
-	}
+	passport.authenticate(params.type,function(err, user, info) {
+	    if (err) {
+	    	return res.status(400).json({payload : {error: info}, message : info.message});
+	 	}
 
-	return res.json({
+	    if (!user) { 
+	    	return res.status(400).json({payload : {error: info}, message : info.message});
+	    }
 
-	});
+	    var output = {};
+
+	    if(user.provider === 'instagram'){
+	    	output = {
+	    			id: user.id,
+	    			username: user.username,
+	    			email: "",
+	    			name: user.full_name,
+	    			bio: user.bio,
+	    			website: user.website,
+	    			avatar: user.profile_picture
+	    		}
+	    }
+
+	    if(user.provider === 'twitter'){
+	    	output = {
+	    			id: user.id,
+	    			username: user.username,
+	    			email: "",
+	    			name: user.full_name,
+	    			bio: user.bio,
+	    			website: user.website,
+	    			avatar: user.profile_picture
+	    		}
+	    }
+
+	    
+	    req.logIn(user, function(err) {
+	    	if (err) {
+	    		return res.status(400).json({payload : {error: info}, message : info.message});
+	 		}
+
+	 		req.session["user"] = output;
+
+	    	return res.json({
+	    		payload : {
+	    			user: output
+	    		},
+	    		message : "Authentication successfull"
+	    	});
+		});
+	})(req,res);
 }
 
 
 // ping this to figure out when users are logged in 
 auth.me = function(req,res){
+	//check passport session for instagram twitter or local
+	// use session value
 	
-	if (!req.user || req.user.status !== 'ENABLED') {
-    	return res.status(401).json({payload : {}, message : "Unauthorize access"});
-  	}
-
   	return res.json({
   		payload: {
-  			user: {
-	    		id: req.user.username,
-	    		username: req.user.username,
-	    		email: req.user.email,
-	    		name: req.user.fullname
-	    	}
+  			user: req.session["user"]
   		},
   		message: "ping successful"
   	});
@@ -104,15 +141,7 @@ auth.register = function(req,res){
 // login a user
 auth.login = function(req,res){
 	var user = req.body.user;
-	var type = req.params.type || 'default';
-
-	if(type === 'instagram'){
-		return passport.authenticate('instagram');
-	}
-
-	if(type === 'twitter'){
-		return passport.authenticate('twitter');
-	}
+	var type = req.query.type || 'default';
 
 	// check user
 	if (!user) {

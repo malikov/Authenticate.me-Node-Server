@@ -10,8 +10,8 @@ config.session = {};
 
 // twitter configuration
 config.twitter.token = process.env.TWITTER_TOKEN || "";
-config.twitter.clientID = process.env.TWITTER_CLIENT_ID || "";
-config.twtiier.clientSecret = process.env.TWITTER_CLIENT_SECRET || "";
+config.twitter.consumerKey = process.env.TWITTER_CLIENT_ID || "JLwpIcMkECEYTFlu17PX7qlBI";
+config.twitter.consumerSecret = process.env.TWITTER_CLIENT_SECRET || "1IKRALMUvMvo05jsvqVWaKThYyUaATe1pHE0FvIKKHfvC7YHQH";
 
 // facebook configuration
 config.facebook.token = process.env.FB_TOKEN || "";
@@ -19,8 +19,8 @@ config.facebook.token = process.env.FB_TOKEN || "";
 
 //instagram configuration
 config.instagram.token = process.env.IG_TOKEN || "";
-config.instagram.clientID = process.env.IG_CLIENT_ID || "";
-config.instagram.clientSecret = process.env.IG_CLIENT_SECRET || "";
+config.instagram.clientID = process.env.IG_CLIENT_ID || "17d8e35463694bb88b31c33f52b26e47";
+config.instagram.clientSecret = process.env.IG_CLIENT_SECRET || "8b6c1fb1fa1a4fc2894b6f0316b512c8";
 
 
 // configuration for stormpath auth
