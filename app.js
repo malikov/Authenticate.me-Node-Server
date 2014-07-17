@@ -5,7 +5,6 @@
 
 var config = require('./config');
 var express = require('express');
-var ejs = require('ejs');
 var path = require('path');
 var favicon = require('static-favicon');
 var logger = require('morgan');
@@ -21,11 +20,6 @@ var twitter = require('twitter');
 
 // instagram node
 var igNode = require('instagram-node').instagram();
-
-// 
-
-
-
 
 
 var session = require('express-session');
@@ -55,14 +49,14 @@ var strategyCallback = function(accessToken, refreshToken, profile, done) {
 var stormpathStrategy = new StormpathStrategy(config.stormpath);
 
 // set instagram callback
-config.instagram.callbackURL = "http://authenticate-me-node.herokuapp.com/oauth/callback?type=instagram";
+config.instagram.callbackURL = "http://authenticate-me-node.herokuapp.com:3000/oauth/callback?type=instagram";
 var igStrategy = new InstagramStrategy(config.instagram, strategyCallback);
 igNode.use({ 
     client_id: config.instagram.clientID,
     client_secret: config.instagram.clientSecret 
 });
 
-config.twitter.callbackURL = "http://authenticate-me-node.herokuapp.com/oauth/callback?type=twitter";
+config.twitter.callbackURL = "http://authenticate-me-node.herokuapp.com:3000/oauth/callback?type=twitter";
 var twitterStrategy = new TwitterStrategy(config.twitter, strategyCallback);
 
 
@@ -88,11 +82,6 @@ var allowCrossDomain = function(req, res, next) {
 }
 
 // setup
-app.set('view engine', 'ejs');
-app.set('view options', {
-    layout: false
-});
-
 app.use(favicon());
 app.use(allowCrossDomain);
 app.use(logger('dev'));
@@ -109,9 +98,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
-
-
-
 
 app.use('/', routes);
 
