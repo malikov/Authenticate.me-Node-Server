@@ -49,14 +49,14 @@ var strategyCallback = function(accessToken, refreshToken, profile, done) {
 var stormpathStrategy = new StormpathStrategy(config.stormpath);
 
 // set instagram callback
-config.instagram.callbackURL = "http://authenticate-me-node.herokuapp.com:3000/oauth/callback?type=instagram";
+config.instagram.callbackURL = "http://authenticate-me-node.herokuapp.com/oauth/callback?type=instagram";
 var igStrategy = new InstagramStrategy(config.instagram, strategyCallback);
 igNode.use({ 
     client_id: config.instagram.clientID,
     client_secret: config.instagram.clientSecret 
 });
 
-config.twitter.callbackURL = "http://authenticate-me-node.herokuapp.com:3000/oauth/callback?type=twitter";
+config.twitter.callbackURL = "http://authenticate-me-node.herokuapp.com/oauth/callback?type=twitter";
 var twitterStrategy = new TwitterStrategy(config.twitter, strategyCallback);
 
 
