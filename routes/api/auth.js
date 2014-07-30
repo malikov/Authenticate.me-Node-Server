@@ -18,7 +18,7 @@ auth.oauthCallback = function(req,res){
 
 	passport.authenticate(params.type,function(err, user, info) {
 	    if (err) {
-	    	return res.status(400).json({payload : {error: info}, message : "An error occured passport.authenticate"});
+	    	return res.status(400).json({payload : {error: info}, message : "An erro occured passport.authenticate"});
 	 	}
 
 	    if (!user) { 
