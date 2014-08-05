@@ -155,7 +155,7 @@ auth.login = function(req,res){
   	// Grab user fields.
 	if (!username || !password) {
 		//send bad request
-  		return res.status(400).json({payload : {}, message : "Invalid email or password"});
+  		return res.status(400).json({payload : {}, message : "Invalid username or password"});
   	}
   	
 	passport.authenticate('stormpath',function(err, user, info) {
