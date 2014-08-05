@@ -41,6 +41,9 @@ var strategyCallback = function(accessToken, refreshToken, profile, done) {
     }
 
     process.nextTick(function () {
+        console.log("=================Profile output ========================");
+        console.log(profile);
+        console.log("====================================");
         output.data.provider = profile.provider;
         return done(null, output.data);
     });
