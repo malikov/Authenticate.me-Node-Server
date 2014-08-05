@@ -178,7 +178,7 @@ auth.login = function(req,res){
 	    				id: req.user.username,
 	    				username: req.user.username,
 	    				email: req.user.email,
-	    				name: req.user.fullname
+	    				name: req.user.name
 	    			}
 	    		},
 	    		message : "Authentication successfull"
