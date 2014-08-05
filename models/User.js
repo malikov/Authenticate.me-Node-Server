@@ -3,7 +3,9 @@
 // get DB
 var db = require('./db');
 
-var userDb = function(){};
+var userDb = function(){
+	
+};
 
 // generating a hash
 userDb.generateHash = function(password) {
