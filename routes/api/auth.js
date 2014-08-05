@@ -129,10 +129,10 @@ auth.register = function(req,res){
 	      }
 	      
 	      return res.json({payload : {user: {
-	    				id: req.user.username,
-	    				username: req.user.username,
-	    				email: req.user.email,
-	    				name: req.user.fullname
+	    				id: username,
+	    				username: username,
+	    				email: email,
+	    				name: username
 	    			}}, message : "Account successfully created"});
 	    });
   	});
