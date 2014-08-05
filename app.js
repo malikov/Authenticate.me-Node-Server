@@ -34,17 +34,18 @@ var strategyCallback = function(accessToken, refreshToken, profile, done) {
     //check provider
     if(profile.provider === 'instagram'){
         igNode.use({ access_token: accessToken });
+        output.data.provider = 'instagram';
     }
 
     if(profile.provider === 'twitter'){
-
+        output.data.provider = 'twitter';
     }
 
     process.nextTick(function () {
         console.log("=================Profile output ========================");
         console.log(profile);
         console.log("====================================");
-        output.data.provider = profile.provider;
+        
         return done(null, output.data);
     });
 }
