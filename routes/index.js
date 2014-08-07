@@ -30,8 +30,8 @@ function ensureUnauthenticated(req, res, next) {
 
 //oauth callback
 router.get('/oauth/callback',api.auth.oauthCallback);
-router.get('/oauth/instagram',ensureUnauthenticated,passport.authenticate('instagram'));
-router.get('/oauth/twitter',ensureUnauthenticated,passport.authenticate('twitter'));
+router.get('/oauth/instagram',passport.authenticate('instagram'));
+router.get('/oauth/twitter',passport.authenticate('twitter'));
 
 
 
