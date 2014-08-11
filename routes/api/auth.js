@@ -6,6 +6,7 @@ var util = require('util');
 var passport = require('passport');
 var stormpath = require('stormpath');
 var config = require('../../config');
+var userDb = require('../../models/User');
 
 var auth = function() {};
 
@@ -25,10 +26,10 @@ auth.oauthCallback = function(req,res){
 	    	return res.status(400).json({payload : {error: info}, message : info.message});
 	    }
 
-	    var output = {};
+	    var dataOutput = {};
 
 	    if(user.provider === 'instagram'){
-	    	output = {
+	    	dataOutput = {
 	    			id: user.id,
 	    			username: user.username,
 	    			email: "",
@@ -40,7 +41,7 @@ auth.oauthCallback = function(req,res){
 	    }
 
 	    if(user.provider === 'twitter'){
-	    	output = {
+	    	dataOutput = {
 	    			id: user.id,
 	    			username: user.username,
 	    			email: "",
@@ -51,21 +52,25 @@ auth.oauthCallback = function(req,res){
 	    		}
 	    }
 
+	    userDb.create(dataOutput).then(function(user){
+	    	req.logIn(user, function(err) {
+		    	if (err) {
+		    		return res.status(400).json({payload : {error: info}, message : info.message});
+		 		}
+
+		 		req.session["user"] = output;
+
+		    	return res.json({
+		    		payload : {
+		    			user: output
+		    		},
+		    		message : "Authentication successfull"
+		    	});
+			});
+	    }, function(error){
+	    	console.log("Authentication failed couldn't create the user's account");
+	    });
 	    
-	    req.logIn(user, function(err) {
-	    	if (err) {
-	    		return res.status(400).json({payload : {error: info}, message : info.message});
-	 		}
-
-	 		req.session["user"] = output;
-
-	    	return res.json({
-	    		payload : {
-	    			user: output
-	    		},
-	    		message : "Authentication successfull"
-	    	});
-		});
 	})(req,res);
 }
 
@@ -128,6 +133,8 @@ auth.register = function(req,res){
 	      	return res.status(400).json({payload :{error:err}, message: err.userMessage });
 	      }
 	      
+	      // use userDb to create user in parse's db
+
 	      return res.json({payload : {user: {
 	    				id: username,
 	    				username: username,

@@ -2,7 +2,6 @@
  * Module dependencies
  */
 
-
 var config = require('./config');
 var express = require('express');
 var path = require('path');
@@ -16,6 +15,8 @@ var passport = require('passport');
 var StormpathStrategy = require('passport-stormpath');
 var InstagramStrategy = require('passport-instagram').Strategy;
 var TwitterStrategy = require('passport-twitter').Strategy;
+
+//twitter node
 var twitter = require('twitter');
 
 // instagram node
@@ -24,7 +25,6 @@ var igNode = require('instagram-node').instagram();
 
 var session = require('express-session');
 var flash = require('connect-flash');
-
 var routes = require('./routes/index');
 
 var app = express();
@@ -81,12 +81,10 @@ var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
-
     next();
 }
 
 // setup
-app.use(favicon());
 app.use(allowCrossDomain);
 app.use(logger('dev'));
 app.use(bodyParser.json());

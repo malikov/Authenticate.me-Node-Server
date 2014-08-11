@@ -4,9 +4,12 @@ config.twitter = {};
 config.facebook = {};
 config.instagram = {};
 config.stormpath = {};
+config.parse= {};
+
 config.redis = {};
 config.web = {};
 config.session = {};
+
 
 // twitter configuration
 config.twitter.token = process.env.TWITTER_TOKEN || "";
@@ -27,6 +30,10 @@ config.instagram.clientSecret = process.env.IG_CLIENT_SECRET || "8b6c1fb1fa1a4fc
 config.stormpath.apiKeyId  = process.env['STORMPATH_API_KEY_ID'] || "23UNX9YJ65XCDWS6SECHHSHSI" ;
 config.stormpath.apiKeySecret  = process.env['STORMPATH_API_KEY_SECRET'] || "L0v/D2Lq7Xhj9U8vgX3vF4SZ02MShJ3TshNXwteyvSs" ;
 config.stormpath.appHref = process.env['STORMPATH_APP_HREF'] || "https://api.stormpath.com/v1/applications/fUz9cCnHjWnQz3OIMAN5y" ;
+
+// parse configuration
+config.parse.appId = process.env['PARSE_API_KEY_ID'] || "HP7gg6WbhMiORnxKM5j3Nd68UxLyDuUrci3QQAo9";
+config.parse.jsKey = process.env['PARSE_API_JS_KEY'] || "kvFRxM4UZfvoc6DZFdePMqhoS60Zf3r4LAhATecr";
 
 
 //session secret
