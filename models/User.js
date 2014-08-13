@@ -6,12 +6,7 @@ var db = require('./db');
 var userObj = db.Object.extend("Users");
 var locationObj = db.Object.extend("Location");
 
-//var userQuery = db.Query(userObj);
-//var locationQuery = db.Query(locationObj);
-
-var userDb = function(){
-	
-};
+var userDb = function(){};
 
 userDb.create = function(data){
 	console.log('userDB.create');
@@ -66,13 +61,14 @@ userDb.update = function(id,data){
 	var query = new db.Query(userObj);
 	console.log('query');
 	console.log(query);
-	
+
 	query.get(id, {
 	  success: function(user) {
 	    // The object was retrieved successfully.
 	    console.log('userQuery fetched successfully');
 	    console.log(user);
 
+	    data.
 	    user.set("fullname", data.fullname);
 		user.set("email", data.email);
 		user.set("bio", data.bio);
@@ -99,16 +95,10 @@ userDb.update = function(id,data){
 }
 
 userDb.get = function(data,type){
-	console.log('userDB.get ');
-	console.log(' By :'+type);
-
 	var promise = new db.Promise();
 
 	var successFct = function(object) {
 	    // Successfully retrieved the object.
-	    console.log('userDb.get success');
-	    console.log(object);
-
 	    promise.resolve(object); // resolve the promise
 	}
 
@@ -117,40 +107,19 @@ userDb.get = function(data,type){
 	}
 
 	var query = new db.Query(userObj);
-
-	if(type === 'objectId'){
-		query.get(data, {
-	  		success: successFct,
-	  		error: errorFct
-	  	})
-	}else{
-		query.equalTo(type, data);
-		query.first({
-		  success: successFct,
-		  error: errorFct 
-		});
-	}
+	query.equalTo(type, data);
+	query.first({
+		success: successFct,
+		error: errorFct 
+	});
+	
 
 	return promise;
 }
 
-
-userDb.findAll = function(callback){
-	var callback = callback || function(err, item){
-		console.log('line 16 - models/User.js : userDb.findAll callback');
-	}
-
+userDb.delete = function(data,type){
 	
 }
 
-userDb.findBy = function(params,callback){
-	
-	var params = params || {type:'Id',id : 0};
-	
-	var callback = callback || function(err, item){
-		console.log('line 31 - models/User.js : userDb.findById callback');
-	}
-
-}
 
 module.exports = userDb;
