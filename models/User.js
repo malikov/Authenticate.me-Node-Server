@@ -60,7 +60,7 @@ userDb.update = function(id,data){
 				user.set(attr, data[attr]);         
 		    }
 		}
-		
+
 		user.save(null, {
 			success: function(user){
 				promise.resolve(user); // resolve the promise
@@ -92,13 +92,16 @@ userDb.get = function(data,type){
 	}
 
 	var query = new db.Query(userObj);
-	query.equalTo(type, data);
-	query.first({
+	
+	if(data && type){
+		query.equalTo(type, data);
+	}
+
+	query.find({
 		success: successFct,
 		error: errorFct 
 	});
 	
-
 	return promise;
 }
 
