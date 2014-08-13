@@ -14,7 +14,7 @@ users.all = function(req,res){
 	
 	var success = function(response){
 		return res.status(200).json({
-			payload : {output: response},
+			payload : response,
 			message : "api.users.get success"
 		});
 	}
@@ -42,7 +42,7 @@ users.get = function(req,res){
 
 	var success = function(response){
 		return res.status(200).json({
-			payload : {output: response},
+			payload :  response,
 			message : "api.users.get success"
 		});
 	}
@@ -67,9 +67,9 @@ users.create = function(req,res){
   		return res.status(500).json({payload : {}, message : "Invalid request error"});
   	}
 
-	var success = function(location){
+	var success = function(user){
 		return res.status(200).json({
-			payload : {output: location},
+			payload :  user,
 			message : "api.users.create success"
 		});
 	}
@@ -95,16 +95,16 @@ users.update = function(req,res){
   		return res.status(500).json({payload : {}, message : "Invalid request error"});
   	}
 
-	var success = function(){
+	var success = function(user){
 		return res.status(200).json({
-			payload : {},
+			payload : user,
 			message : "api.users.update success"
 		});
 	}
 
-	var error = function(){
+	var error = function(error){
 		return res.status(400).json({
-			payload : {},
+			payload : {error: error},
 			message : "api.users.update error"
 		});
 	}
