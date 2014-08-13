@@ -9,8 +9,6 @@ var locationObj = db.Object.extend("Location");
 var userDb = function(){};
 
 userDb.create = function(data){
-	console.log('userDB.create');
-	
 	var self = this;
 	var promise = new db.Promise();
     
@@ -51,30 +49,17 @@ userDb.create = function(data){
 }
 
 userDb.update = function(id,data){
-	console.log('userDB.update : '+id);
-	console.log('width data');
-	console.log(data);
-
-	var self = this;
 	var promise = new db.Promise();
-	
 	var query = new db.Query(userObj);
-	console.log('query');
-	console.log(query);
-
+	
 	query.get(id, {
 	  success: function(user) {
-	    // The object was retrieved successfully.
-	    console.log('userQuery fetched successfully');
-	    console.log(user);
-
-	    data.
-	    user.set("fullname", data.fullname);
-		user.set("email", data.email);
-		user.set("bio", data.bio);
-		user.set("instagram", data.instagram || null);
-		user.set("twitter", data.twitter || null);
-		user.set("facebook", data.facebook || null);
+	    
+	    for (var attr in data){
+		    if (data.hasOwnProperty(attr)) {
+				user.set(attr, data[attr]);         
+		    }
+		}
 		
 		user.save(null, {
 			success: function(user){
