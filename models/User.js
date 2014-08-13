@@ -3,18 +3,24 @@
 // get DB
 var db = require('./db');
 
-var userDb = function(id){
-	var self = this;
-	self.userObj = db.Object.extend("Users");
-	self.locationObj = db.Object.extend("Locations");
+var userObj = db.Object.extend("Users");
+var locationObj = db.Object.extend("Location");
+
+//var userQuery = db.Query(userObj);
+//var locationQuery = db.Query(locationObj);
+
+var userDb = function(){
+	
 };
 
 userDb.create = function(data){
+	console.log('userDB.create');
+	
 	var self = this;
 	var promise = new db.Promise();
-
-	// creating new user
-	var user = new self.userObj();
+    
+    // creating new user
+	var user = new userObj();
 	user.set("username", data.username);
 	user.set("fullname", data.fullname);
 	user.set("email", data.email);
@@ -24,14 +30,14 @@ userDb.create = function(data){
 	user.set("facebook", data.facebook || null);
 
 	// created new location
-	var location = new self.locationObj();
+	var location = new locationObj();
 
 	var geoPoint = db.GeoPoint({
 		latitude: data.location.latitude, 
 		longitude: data.location.longitude
 	}); // parse geopoint
 
-	location.set("geoPoint", geoPoint);
+	location.set("location", geoPoint);
 	location.set("city", data.location.city);
 	location.set("zipcode", data.location.zipcode);
 	location.set("country", data.location.country);
@@ -49,22 +55,85 @@ userDb.create = function(data){
 	return promise;
 }
 
-userDb.update = function(data,success,error){
+userDb.update = function(id,data){
+	console.log('userDB.update : '+id);
+	console.log('width data');
+	console.log(data);
+
 	var self = this;
+	var promise = new db.Promise();
 	
-	var user = new self.userObj(data.userid);
+	var query = new db.Query(userObj);
+	console.log('query');
+	console.log(query);
 	
-	user.save(data,{
-		success: success || function(user){
-			//the user should be returned and created 
-			//console.log(user);
-		},
-		error: error || function(user, error){
-			//the user isn't created
-			//console.log(user);
-		}
+	query.get(id, {
+	  success: function(user) {
+	    // The object was retrieved successfully.
+	    console.log('userQuery fetched successfully');
+	    console.log(user);
+
+	    user.set("fullname", data.fullname);
+		user.set("email", data.email);
+		user.set("bio", data.bio);
+		user.set("instagram", data.instagram || null);
+		user.set("twitter", data.twitter || null);
+		user.set("facebook", data.facebook || null);
+		
+		user.save(null, {
+			success: function(user){
+				promise.resolve(user); // resolve the promise
+			},
+			error: function(user, error){
+				promise.reject(error); // reject the promise
+			}
+		});
+	  },
+	  error: function(user, error) {
+	    // The object was not retrieved successfully.
+	    promise.reject(error); 
+	  }
 	});
+
+	return promise;
 }
+
+userDb.get = function(data,type){
+	console.log('userDB.get ');
+	console.log(' By :'+type);
+
+	var promise = new db.Promise();
+
+	var successFct = function(object) {
+	    // Successfully retrieved the object.
+	    console.log('userDb.get success');
+	    console.log(object);
+
+	    promise.resolve(object); // resolve the promise
+	}
+
+	var errorFct = function(error) {
+	    promise.reject(error);
+	}
+
+	var query = new db.Query(userObj);
+
+	if(type === 'objectId'){
+		query.get(data, {
+	  		success: successFct,
+	  		error: errorFct
+	  	})
+	}else{
+		query.equalTo(type, data);
+		query.first({
+		  success: successFct,
+		  error: errorFct 
+		});
+	}
+
+	return promise;
+}
+
 
 userDb.findAll = function(callback){
 	var callback = callback || function(err, item){

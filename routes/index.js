@@ -44,7 +44,7 @@ router.get('/logout',api.auth.logout);
 //api/users calls
 router.get('/', api.default);
 router.get('/users',ensureAuthenticated, api.users.all);
-router.post('/users', api.users.create);
+router.post('/users',ensureAuthenticated,api.users.create);
 router.get('/users/:id', api.users.get);
 router.put('/users/:id',ensureAuthenticated, api.users.update);
 router.delete('/users/:id',ensureAuthenticated, api.users.delete);
