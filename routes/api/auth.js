@@ -4,7 +4,7 @@
 */
 var util = require('util');
 
-var parse = require('parse').Parse;
+var Parse = require('parse').Parse;
 var passport = require('passport');
 
 
@@ -113,7 +113,7 @@ auth.me = function(req,res){
 	
   	return res.json({
   		payload: {
-  			user: parse.User.current()
+  			user: Parse.User.current()
   		},
   		message: "ping successful"
   	});
@@ -202,8 +202,10 @@ auth.login = function(req,res){
 }
 
 auth.logout = function(req,res){
-	req.logout();
-	
+	Parse.User.logOut();
+	if(!Parse.User.current()){
+		req.logout();
+	}
 	res.json({
 		payload: {},
 		message: "logout message triggered"
