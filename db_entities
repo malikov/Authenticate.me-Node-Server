@@ -1,0 +1,20 @@
+User
+	id
+	username
+	password
+	email
+	bio
+
+	instagram : id, // if empty then not linked
+	twitter : id,
+	facebook: id
+
+	has Location {
+		city,
+		zipcode,
+		country,
+		geoCode
+	}
+	
+	
+
