@@ -1,56 +1,52 @@
 'use strict';
 
-// get DB
-var db = require('./db');
+var Parse  = require('parse').Parse;
 
-var userObj = db.Object.extend("Users");
-var locationObj = db.Object.extend("Location");
+var userObj = Parse.User;
+var locationObj = Parse.Object.extend("Location");
 
 var userDb = function(){};
 
+// creating a new user means signing the user up :)
 userDb.create = function(data){
 	var self = this;
-	var promise = new db.Promise();
+
+	console.log('userDb.create');
+	console.log('data');
+	console.log(data);
+
+	var promise = new Parse.Promise();
     
     // creating new user
 	var user = new userObj();
 	user.set("username", data.username);
+	user.set("password", data.password);
 	user.set("fullname", data.fullname);
 	user.set("email", data.email);
 	user.set("bio", data.bio);
-	user.set("instagram", data.instagram || null);
-	user.set("twitter", data.twitter || null);
-	user.set("facebook", data.facebook || null);
-
-	// created new location
-	var location = new locationObj();
-
-	var geoPoint = db.GeoPoint({
-		latitude: data.location.latitude, 
-		longitude: data.location.longitude
+	
+	var geoPoint = new Parse.GeoPoint({
+		latitude: parseFloat(data.location.latitude), 
+		longitude: parseFloat(data.location.longitude)
 	}); // parse geopoint
 
-	location.set("location", geoPoint);
-	location.set("city", data.location.city);
-	location.set("zipcode", data.location.zipcode);
-	location.set("country", data.location.country);
+	user.set("location", geoPoint);
 
-	location.set("parent", user); // one to one relationship
-	location.save(null, {
-		success: function(location){
-			promise.resolve(location); // resolve the promise
+	user.signUp(null,{
+		success : function(user){
+			promise.resolve(user);
 		},
-		error: function(location, error){
-			promise.reject(error); // reject the promise
+		error: function(user, error){
+			promise.reject(error);
 		}
 	});
-
+	
 	return promise;
 }
 
 userDb.update = function(id,data){
-	var promise = new db.Promise();
-	var query = new db.Query(userObj);
+	var promise = new Parse.Promise();
+	var query = new Parse.Query(userObj);
 	
 	query.get(id, {
 	  success: function(user) {
@@ -80,7 +76,8 @@ userDb.update = function(id,data){
 }
 
 userDb.get = function(data,type){
-	var promise = new db.Promise();
+	var promise = new Parse.Promise();
+	var query = new Parse.Query(userObj);
 
 	var successFct = function(object) {
 	    // Successfully retrieved the object.
@@ -91,16 +88,22 @@ userDb.get = function(data,type){
 	    promise.reject(error);
 	}
 
-	var query = new db.Query(userObj);
 	
 	if(data && type){
 		query.equalTo(type, data);
 	}
 
-	query.find({
-		success: successFct,
-		error: errorFct 
-	});
+	if(type === 'objectId'){
+		query.first({
+			success: successFct,
+			error: errorFct 
+		});
+	}else{
+		query.find({
+			success: successFct,
+			error: errorFct 
+		});
+	}	
 	
 	return promise;
 }

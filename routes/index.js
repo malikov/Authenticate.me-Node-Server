@@ -4,8 +4,8 @@
 var express = require('express');
 var passport = require('passport');
 var router = express.Router();
+var parse = require('parse').Parse;
 var api = require('./api/index');
-
 
 function ensureAuthenticated(req, res, next) {
   if (!req.isAuthenticated()) {
@@ -20,7 +20,7 @@ function ensureUnauthenticated(req, res, next) {
     // display an "already logged in" message
     return res.json({
 	    	payload : {
-	    		user: req.session["user"]
+	    		user: parse.User.current()
 	    	},
 	    	message : "User logged In you can't perform this action, logout then try again"
 	    });
@@ -39,13 +39,13 @@ router.get('/oauth/twitter',passport.authenticate('twitter'));
 router.get('/me',ensureAuthenticated,api.auth.me);
 router.post('/login',ensureUnauthenticated,api.auth.login);
 router.post('/register',ensureUnauthenticated,api.auth.register);
-router.get('/logout',api.auth.logout);
+router.get('/logout',ensureAuthenticated,api.auth.logout);
 
 //api/users calls
 router.get('/', api.default);
 router.get('/users',ensureAuthenticated, api.users.all);
 router.post('/users',ensureAuthenticated,api.users.create);
-router.get('/users/:id', api.users.get);
+router.get('/users/:id',ensureAuthenticated, api.users.get);
 router.put('/users/:id',ensureAuthenticated, api.users.update);
 router.delete('/users/:id',ensureAuthenticated, api.users.delete);
 

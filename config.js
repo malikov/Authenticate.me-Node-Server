@@ -10,11 +10,14 @@ config.redis = {};
 config.web = {};
 config.session = {};
 
+// baseUrl
+config.web.baseUrl = "http://authenticate-app-me.herokuapp.com";
 
 // twitter configuration
 config.twitter.token = process.env.TWITTER_TOKEN || "";
 config.twitter.consumerKey = process.env.TWITTER_CLIENT_ID || "JLwpIcMkECEYTFlu17PX7qlBI";
 config.twitter.consumerSecret = process.env.TWITTER_CLIENT_SECRET || "1IKRALMUvMvo05jsvqVWaKThYyUaATe1pHE0FvIKKHfvC7YHQH";
+config.twitter.callbackURL = config.web.baseUrl+"/oauth/callback?type=twitter";
 
 // facebook configuration
 config.facebook.token = process.env.FB_TOKEN || "";
@@ -24,7 +27,7 @@ config.facebook.token = process.env.FB_TOKEN || "";
 config.instagram.token = process.env.IG_TOKEN || "";
 config.instagram.clientID = process.env.IG_CLIENT_ID || "17d8e35463694bb88b31c33f52b26e47";
 config.instagram.clientSecret = process.env.IG_CLIENT_SECRET || "8b6c1fb1fa1a4fc2894b6f0316b512c8";
-
+config.instagram.callbackURL = config.web.baseUrl+"/oauth/callback?type=instagram";
 
 // configuration for stormpath auth
 config.stormpath.apiKeyId  = process.env['STORMPATH_API_KEY_ID'] || "23UNX9YJ65XCDWS6SECHHSHSI" ;
@@ -45,5 +48,7 @@ config.redis.host = 'hostname';
 config.redis.port = 6379;
 config.web.port = process.env.WEB_PORT || 9980;
 */
+
+
 
 module.exports = config;

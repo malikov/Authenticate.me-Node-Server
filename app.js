@@ -9,62 +9,38 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require('passport');
-
-// Strategies
-var StormpathStrategy = require('passport-stormpath');
-var InstagramStrategy = require('passport-instagram').Strategy;
-var TwitterStrategy = require('passport-twitter').Strategy;
-
-//twitter node
-var twitter = require('twitter');
-
-// instagram node
-var igNode = require('instagram-node').instagram();
-
-
 var session = require('express-session');
 var flash = require('connect-flash');
 var routes = require('./routes/index');
+var api = require('./routes/api/index');
+
+
+// Strategies
+var ParseStrategy = require('passport-parse');
+var InstagramStrategy = require('passport-instagram').Strategy;
+var TwitterStrategy = require('passport-twitter').Strategy;
+
+//parse
+var parse = require('parse').Parse;
+parse.initialize(config.parse.appId,config.parse.jsKey);
+
+//twitter node
+//var twitter = require('twitter');
+
+// instagram node
+//var igNode = require('instagram-node').instagram();
+
+
 
 var app = express();
 
-var strategyCallback = function(accessToken, refreshToken, profile, done) {
-    var output = JSON.parse(profile._raw);
-    //check provider
-    if(profile.provider === 'instagram'){
-        igNode.use({ access_token: accessToken });
-        output.data.provider = 'instagram';
-    }
-
-    if(profile.provider === 'twitter'){
-        output.data.provider = 'twitter';
-    }
-
-    process.nextTick(function () {
-        console.log("=================Profile output ========================");
-        console.log(profile);
-        console.log("====================================");
-        
-        return done(null, output.data);
-    });
-}
-
-var stormpathStrategy = new StormpathStrategy(config.stormpath);
-
-// set instagram callback
-config.instagram.callbackURL = "http://authenticate-app-me.herokuapp.com/oauth/callback?type=instagram";
-var igStrategy = new InstagramStrategy(config.instagram, strategyCallback);
-igNode.use({ 
-    client_id: config.instagram.clientID,
-    client_secret: config.instagram.clientSecret 
-});
-
-config.twitter.callbackURL = "http://authenticate-app-me.herokuapp.com/oauth/callback?type=twitter";
-var twitterStrategy = new TwitterStrategy(config.twitter, strategyCallback);
+var parseStrategy = new ParseStrategy({parseClient: parse});
+var igStrategy = new InstagramStrategy(config.instagram, api.auth.strategyCallback);
+var twitterStrategy = new TwitterStrategy(config.twitter, api.auth.strategyCallback);
 
 
 // setting passport with the strategies
-passport.use(stormpathStrategy);
+passport.use(parseStrategy);
 passport.use(igStrategy);
 passport.use(twitterStrategy);
 

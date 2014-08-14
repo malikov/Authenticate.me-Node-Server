@@ -3,12 +3,43 @@
 	api definition for users
 */
 var util = require('util');
+
+var parse = require('parse').Parse;
 var passport = require('passport');
-var stormpath = require('stormpath');
+
+
 var config = require('../../config');
 var userDb = require('../../models/User');
 
+var igNode = require('instagram-node').instagram();
+
 var auth = function() {};
+
+auth.strategyCallback = function(accessToken, refreshToken, profile, done) {
+    var output = JSON.parse(profile._raw);
+    //check provider
+    if(profile.provider === 'instagram'){
+        igNode.use({ 
+        	access_token: accessToken,
+		    client_id: config.instagram.clientID,
+		    client_secret: config.instagram.clientSecret 
+		});
+
+        output.data.provider = 'instagram';
+    }
+
+    if(profile.provider === 'twitter'){
+        output.data.provider = 'twitter';
+    }
+
+    /*
+		user parse to figure out if user is logged or nah
+    */
+
+    process.nextTick(function () {
+        return done(null, output.data);
+    });
+}
 
 auth.oauthCallback = function(req,res){
 	var params = req.query || {};
@@ -82,7 +113,7 @@ auth.me = function(req,res){
 	
   	return res.json({
   		payload: {
-  			user: req.session["user"]
+  			user: parse.User.current()
   		},
   		message: "ping successful"
   	});
@@ -91,7 +122,7 @@ auth.me = function(req,res){
 // registering a user
 auth.register = function(req,res){
 	var user = req.body.user;
-
+	console.log('auth.register');
 	// check user
 	if (!user) {
 		//send bad request
@@ -106,50 +137,29 @@ auth.register = function(req,res){
   	// Grab user fields.
 	if (!username || !email || !password) {
 		//send bad request
-  		return res.status(400).json({payload : {}, message : "Missing email or password or username"});
+  		return res.status(400).json({payload : {}, message : "Missing credentials check all the fiels then try again"});
   	}
 
-  	// Initialize our Stormpath client.
-  	var apiKey = new stormpath.ApiKey(
-    	config.stormpath.apiKeyId,
-    	config.stormpath.apiKeySecret
-  	);
-
-  	var spClient = new stormpath.Client({ apiKey: apiKey });
-
-  	// Grab our app, then attempt to create this user's account.
-  	var app = spClient.getApplication(config.stormpath.appHref, function(err, app) {
-		if (err) throw err;
-
-	    app.createAccount({
-	      givenName: username,
-	      surname: username,
-	      username: username,
-	      email: email,
-	      password: password,
-	    }, function (err, createdAccount) {
-	      if (err) {
-	      	//send bad request
-	      	return res.status(400).json({payload :{error:err}, message: err.userMessage });
-	      }
-	      
-	      // use userDb to create user in parse's db
-
-	      return res.json({payload : {user: {
-	    				id: username,
-	    				username: username,
-	    				email: email,
-	    				name: username
-	    			}}, message : "Account successfully created"});
-	    });
+  	console.log('calling userdb.create');
+  	userDb.create(user).then(function(user){
+  		//success when signing up, now we try to login
+  		res.status(200).json({
+  			payload: user,
+  			message: "Account successfully created"
+  		});
+  	},
+  	function(error){
+  		res.status(400).json({
+  			payload: error.code,
+  			message: error.message
+  		});
   	});
 }
 
 // login a user
 auth.login = function(req,res){
 	var user = req.body.user;
-	var type = req.query.type || 'default';
-
+	
 	// check user
 	if (!user) {
 		//send bad request
@@ -165,28 +175,25 @@ auth.login = function(req,res){
   		return res.status(400).json({payload : {}, message : "Invalid username or password"});
   	}
   	
-	passport.authenticate('stormpath',function(err, user, info) {
+	passport.authenticate('parse',function(err, user, info) {
 	    if (err) {
-	    	return res.status(400).json({payload : {error: info}, message : info.message});
+	    	return res.status(400).json({payload : {error: err}, message : info.message});
 	 	}
 
 	    if (!user) { 
-	    	return res.status(400).json({payload : {error: info}, message : info.message});
+	    	return res.status(400).json({payload : {error: err}, message : info.message});
 	    }
 
 	    req.logIn(user, function(err) {
 	    	if (err) {
-	    		return res.status(400).json({payload : {error: info}, message : info.message});
+	    		return res.status(400).json({payload : {error: err}, message : info.message});
 	 		}
+	 		
+	 		req.session["user"] = user;
 
 	    	return res.json({
 	    		payload : {
-	    			user: {
-	    				id: req.user.username,
-	    				username: req.user.username,
-	    				email: req.user.email,
-	    				name: req.user.fullName
-	    			}
+	    			user: req.user
 	    		},
 	    		message : "Authentication successfull"
 	    	});
