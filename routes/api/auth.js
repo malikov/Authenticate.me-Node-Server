@@ -108,9 +108,8 @@ var auth = {
 		// use session value
 		
 	  	return res.json({
-	  		payload: {
-	  			user: Parse.User.current()
-	  		},
+	  		payload: _user.Parse.User.current()
+	  		,
 	  		message: "ping successful"
 	  	});
 	},
@@ -182,9 +181,7 @@ var auth = {
 		 		req.session["user"] = req.user;
 
 		    	return res.json({
-		    		payload : {
-		    			user: req.user
-		    		},
+		    		payload : req.user,
 		    		message : "Authentication successfull"
 		    	});
 			});
@@ -192,8 +189,8 @@ var auth = {
 	},
 
 	logout: function(req,res){
-		Parse.User.logOut();
-		if(!Parse.User.current()){
+		_user.Parse.User.logOut();
+		if(!_user.Parse.User.current()){
 			req.logout();
 		}
 		res.json({

@@ -19,7 +19,7 @@ var users = {
 
 		var error = function(error){
 			return res.status(400).json({
-				payload : {error: error},
+				error : error,
 				message : "api.users.get error"
 			});
 		}
@@ -40,14 +40,15 @@ var users = {
 
 		var success = function(response){
 			return res.status(200).json({
-				payload :  response,
+				payload: response
+				,
 				message : "api.users.get success"
 			});
 		}
 
 		var error = function(error){
 			return res.status(400).json({
-				payload : {error: error},
+				error : error,
 				message : "api.users.get error"
 			});
 		}
@@ -74,7 +75,7 @@ var users = {
 
 		var error = function(error){
 			return res.status(400).json({
-				payload : {error: error},
+				error : error,
 				message : "api.users.create error"
 			});
 		}
@@ -102,7 +103,7 @@ var users = {
 
 		var error = function(error){
 			return res.status(400).json({
-				payload : {error: error},
+				error:  error,
 				message : "api.users.update error"
 			});
 		}
