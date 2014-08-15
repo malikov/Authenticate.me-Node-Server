@@ -1,40 +1,12 @@
 'use strict';
 
-var db = require('./db');
+var DbBase = require('./db'),
+inherits = require('util').inherits;
 
-var messageDb = function(){};
+function MessageDb(){
+	DbBase.call(this, 'Message');
+};
 
-messageDb.create = function(user,callback){
-	var callback = callback || function(err, item){
-		console.log('line 10 - models/User.js : messageDb.create callback');
-	}
+inherits(MessageDb, DbBase);
 
-	var userDoc = {
-		
-	}
-
-}
-
-messageDb.findAll = function(callback){
-	var callback = callback || function(err, item){
-		console.log('line 16 - models/User.js : messageDb.findAll callback');
-	}
-
-	return db.collection('users',collectionCb);
-}
-
-messageDb.findById = function(userId,callback){
-	var userId = userId || 0;
-
-	var callback = callback || function(err, item){
-		console.log('line 23 - models/User.js : messageDb.findById callback');
-	}
-
-	var collectionCb = function(err, collection){
-		collection.findOne({'_id':userId}).toArray(callback);
-	}
-
-	return db.collection('users',collectionCb);
-}
-
-module.exports = messageDb;
+module.exports = MessageDb;

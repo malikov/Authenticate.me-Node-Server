@@ -24,17 +24,9 @@ exports.messages = require('./messages');
 exports.auth = require('./auth');
 
 exports.default = function (req,res){
-  console.log('Default entry point need to check access authorize to server');
-  
-  util.inspect(req);
-  util.inspect(res);
-
-  return res.json({message : "default"});
+	return res.json({message : "default"});
 }
 
 exports.error = function (req,res){
-	console.log("error");
-	consoel.log(req);
-
 	return res.status(500).json({payload : req, message : "an error occured"});
 }

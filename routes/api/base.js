@@ -6,10 +6,11 @@ var util = require('util');
 var config = require('../../config');
 var userDb = require('../../models/User');
 
-var _user = new userDb();
+
 
 var users = {
 	all: function(req,res){
+		
 		var success = function(response){
 			return res.status(200).json({
 				payload : response,
@@ -24,7 +25,7 @@ var users = {
 			});
 		}
 
-		_user.get().then(success, error);
+		userDb.get().then(success, error);
 	},
 
 	// get user by id
@@ -52,7 +53,7 @@ var users = {
 			});
 		}
 
-		_user.get(userId,filter).then(success, error);
+		userDb.get(userId,filter).then(success, error);
 	},
 
 	// create a user
@@ -79,7 +80,7 @@ var users = {
 			});
 		}
 
-		_user.create(user).then(success, error);
+		userDb.create(user).then(success, error);
 	},
 
 	// update a user
@@ -107,7 +108,7 @@ var users = {
 			});
 		}
 
-		_user.update(userId,user).then(success, error);
+		userDb.update(userId,user).then(success, error);
 	},
 
 	// get user by id
