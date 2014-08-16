@@ -110,9 +110,11 @@ dbBase.prototype.delete = function(id){
 	    promise.reject(error);
 	}
 	query.equalTo("objectId", id);
-	query.first({
-		success: successFct,
-		error: errorFct 
+	query.first().then(function(obj){
+		obj.destroy({
+			success: successFct,
+			error: errorFct 
+		});
 	});
 	
 	return promise;

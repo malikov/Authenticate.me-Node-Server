@@ -113,7 +113,29 @@ var users = {
 
 	// get user by id
 	delete: function(req,res){
-			
+		var userId = req.params.id;
+
+		// check user
+		if (!userId) {
+			//send bad request
+	  		return res.status(500).json({payload : {}, message : "Invalid request error"});
+	  	}
+
+		var success = function(user){
+			return res.status(200).json({
+				payload : {},
+				message : "api.users.update success"
+			});
+		}
+
+		var error = function(error){
+			return res.status(400).json({
+				error:  error,
+				message : "api.users.update error"
+			});
+		}
+
+		_user.delete(userId).then(success, error);
 	}
 }
 

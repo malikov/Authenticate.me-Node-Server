@@ -10,7 +10,7 @@ var api = require('./api/index');
 function ensureAuthenticated(req, res, next) {
   if (!req.isAuthenticated()) {
     // display an "already logged in" message
-    return res.status(401).json({payload : {}, message : "Unauthorize access"});
+    return res.status(400).json({payload : {}, message : "Unauthorize access"});
   }
   next();
 }
