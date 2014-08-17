@@ -26,6 +26,7 @@ userDb.prototype.create = function(data){
 			latitude: parseFloat(data.location.latitude), 
 			longitude: parseFloat(data.location.longitude)
 		}); // parse geopoint
+		geoPoint.set('name',data.location.name);
 
 		user.set("location", geoPoint);
 	}
@@ -39,6 +40,37 @@ userDb.prototype.create = function(data){
 		}
 	});
 	
+	return promise;
+}
+
+userDb.prototype.update = function(id,data){
+	var promise = new this.promise();
+	var query = new this.Parse.Query(this.dbObj);
+	
+	query.get(id, {
+	  success: function(obj) {
+	    
+	    for (var attr in data){
+		    if (data.hasOwnProperty(attr)) {
+				obj.set(attr, data[attr]);         
+		    }
+		}
+
+		obj.save(null, {
+			success: function(obj){
+				promise.resolve(obj); // resolve the promise
+			},
+			error: function(obj, error){
+				promise.reject(error); // reject the promise
+			}
+		});
+	  },
+	  error: function(obj, error) {
+	    // The object was not retrieved successfully.
+	    promise.reject(error); 
+	  }
+	});
+
 	return promise;
 }
 

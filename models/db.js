@@ -2,7 +2,10 @@
 
 var Parse  = require('parse').Parse;
 
+
+
 function dbBase(type){
+	this.type = type;
 	this.dbObj = Parse.Object.extend(type);
 	this.promise = Parse.Promise;
 	this.Parse = Parse;
