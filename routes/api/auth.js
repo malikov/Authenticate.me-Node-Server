@@ -178,10 +178,8 @@ var auth = {
 		    		return res.status(400).json({payload : {error: err}, message : info.message});
 		 		}
 		 		
-		 		req.session["user"] = req.user;
-
-		    	return res.json({
-		    		payload : req.user,
+		 		return res.json({
+		    		payload : user,
 		    		message : "Authentication successfull"
 		    	});
 			});

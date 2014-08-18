@@ -8,7 +8,7 @@ var parse = require('parse').Parse;
 var api = require('./api/index');
 
 function ensureAuthenticated(req, res, next) {
-  if (!req.isAuthenticated()) {
+  if (!parse.User.current()) {
     // display an "already logged in" message
     return res.status(401).json({payload : {}, message : "Unauthorize access"});
   }
@@ -16,7 +16,7 @@ function ensureAuthenticated(req, res, next) {
 }
 
 function ensureUnauthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
+  if (parse.User.current()) {
     // display an "already logged in" message
     return res.json({
 	    	payload : {
