@@ -4,9 +4,7 @@
 */
 var util = require('util');
 var config = require('../../config');
-var userDb = require('../../models/User');
-
-var _user = new userDb();
+var db = require('../../models');
 
 var users = {
 	all: function(req,res){
@@ -24,7 +22,7 @@ var users = {
 			});
 		}
 
-		_user.get(null,null,{queryType: 'find'}).then(success, error);
+		db.user.get(null,null,{queryType: 'find'}).then(success, error);
 	},
 
 	// get user by id
@@ -53,7 +51,7 @@ var users = {
 			});
 		}
 
-		_user.get(userId,filter).then(success, error);
+		db.user.get(userId,filter).then(success, error);
 	},
 
 	// create a user
@@ -80,7 +78,7 @@ var users = {
 			});
 		}
 
-		_user.create(user).then(success, error);
+		db.user.create(user).then(success, error);
 	},
 
 	// update a user
@@ -108,7 +106,7 @@ var users = {
 			});
 		}
 
-		_user.update(userId,user).then(success, error);
+		db.user.update(userId,user).then(success, error);
 	},
 
 	// get user by id
@@ -135,7 +133,7 @@ var users = {
 			});
 		}
 
-		_user.delete(userId).then(success, error);
+		db.user.delete(userId).then(success, error);
 	}
 }
 

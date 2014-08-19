@@ -9,19 +9,9 @@ var moment = require('moment');
 var jwt  = require('jwt-simple');
 
 var config = require('../../config');
-var userDb = require('../../models/User');
-
-var	tokenRequestDb = require('../../models/TokenRequest');
-var tokenStorageDb = require('../../models/TokenStorage');
+var db = require('../../models');
 
 var igNode = require('instagram-node').instagram();
-
-
-// get models db
-var _user = new userDb();
-var _tokenRequest = new tokenRequestDb();
-var _tokenStorage = new tokenStorageDb();
-
 
 var auth = {
 	validateToken: function(req, res, next){
@@ -30,7 +20,7 @@ var auth = {
 	    	try {
 	    		//check agains the db is a token request is present
 	    		//if there's no token then the user must have logged out
-	    		_tokenRequest.get(token,'token').then(function(response){
+	    		db.tokenRequest.get(token,'token').then(function(response){
 	    			
 	    			if(!response){
 	    				return next();	
@@ -43,7 +33,7 @@ var auth = {
 						return res.status(400).json({payload : {error: ''}, message : 'Access token has expired'});
 					}
 
-					_user.Parse.User.become(decoded.parseSession).then(function (user) {
+					db.user.Parse.User.become(decoded.parseSession).then(function (user) {
 					  // The current user is now set to user.
 					  req.user = user
 					  return next();
@@ -64,95 +54,50 @@ var auth = {
 		}
 	},
 
-	//strategy callback
+	//strategy callback for oauth login
 	strategyCallback : function(accessToken, refreshToken, profile, done) {
-	    var output = JSON.parse(profile._raw);
-	    //check provider
-	    if(profile.provider === 'instagram'){
-	        igNode.use({ 
-	        	access_token: accessToken,
-			    client_id: config.instagram.clientID,
-			    client_secret: config.instagram.clientSecret 
-			});
-
-	        output.data.provider = 'instagram';
+	    var response = {
+	    	provider : profile.provider,
+	    	user: profile,
+	    	accessToken: accessToken
 	    }
 
-	    if(profile.provider === 'twitter'){
-	        output.data.provider = 'twitter';
-	    }
 
-	    /*
-			user parse to figure out if user is logged or nah
-	    */
 
 	    process.nextTick(function () {
-	        return done(null, output.data);
+	        return done(null, response);
 	    });
 	},
 
 	oauthCallback : function(req,res){
+		// return from query oauth/:type
 		var params = req.query || {};
+
 		// oauth callback
 		if(params.type !== "instagram" && params.type !== "twitter" && params.type !== "facebook"){
-			return res.status(500).json({payload : {}, message : "Undefined user"});
+			return res.status(500).json({payload : {}, message : "Undefined provider"});
 		}
 
-		passport.authenticate(params.type,function(err, user, info) {
-		    if (err) {
-		    	return res.status(400).json({payload : {error: info}, message : "An erro occured passport.authenticate"});
+		// once this is called in the strategycallback function will be called
+		passport.authenticate(params.type,function(err, response, info) {
+			if (err) {
+		    	return res.status(400).json({payload : {error: info}, message : "Authentication failed"});
 		 	}
 
 		    if (!user) { 
 		    	return res.status(400).json({payload : {error: info}, message : info.message});
 		    }
 
-		    var dataOutput = {};
+		    /*
+				User is logged in so just link
+		    */
+		    if(req.user){
 
-		    if(user.provider === 'instagram'){
-		    	dataOutput = {
-		    			id: user.id,
-		    			username: user.username,
-		    			email: "",
-		    			name: user.full_name,
-		    			bio: user.bio,
-		    			website: user.website,
-		    			avatar: user.profile_picture
-		    		}
+		    }else{
+		    	// User is not logged in so must create
 		    }
 
-		    if(user.provider === 'twitter'){
-		    	dataOutput = {
-		    			id: user.id,
-		    			username: user.username,
-		    			email: "",
-		    			name: user.full_name,
-		    			bio: user.bio,
-		    			website: user.website,
-		    			avatar: user.profile_picture
-		    		}
-		    }
-
-		    _user.create(dataOutput).then(function(user){
-		    	req.logIn(user, function(err) {
-			    	if (err) {
-			    		return res.status(400).json({payload : {error: info}, message : info.message});
-			 		}
-
-			 		req.session["user"] = output;
-
-			    	return res.json({
-			    		payload : {
-			    			user: output
-			    		},
-			    		message : "Authentication successfull"
-			    	});
-				});
-		    }, function(error){
-		    	console.log("Authentication failed couldn't create the user's account");
-		    });
-		    
-		})(req,res);
+		}); 
 	},
 
 	me : function(req,res){
@@ -160,7 +105,7 @@ var auth = {
 		// use session value
 		
 	  	return res.json({
-	  		payload: _user.Parse.User.current()
+	  		payload: req.user
 	  		,
 	  		message: "ping successful"
 	  	});
@@ -182,7 +127,7 @@ var auth = {
 	  		return res.status(400).json({payload : {}, message : "Missing credentials check all the fields then try again"});
 	  	}
 
-	  	_user.create(user).then(function(user){
+	  	db.user.create(user).then(function(user){
 	  		//success when signing up, now we try to login
 	  		res.status(200).json({
 	  			payload: user,
@@ -196,7 +141,21 @@ var auth = {
 	  		});
 	  	});
 	},
+	oauthLogin: function(req, res, next){
+		if(req.user){
+			// little tweak
+			// the user is loged in this will certainly be a linking social account action
+			req.tokenUser = req.user;
+		}
 
+		var type = req.params.type;
+		
+		if(type === 'instagram' || type === 'twitter' || type === 'facebook'){
+			return passport.authenticate(type);
+		}else{
+			return res.status(400).json({payload : {}, message : "Invalid Request"});
+		}
+	},
 	// login a user
 	login: function(req,res){
 		var user = req.body.user;
@@ -229,7 +188,7 @@ var auth = {
 		    // create a token with jwt-simple
 		    var expires = moment().add(30,'days').valueOf();				
 			var _token = jwt.encode({
-							iss: user.objectId,
+							iss: user.id,
 							exp: expires,
 							parseSession: user._sessionToken
 						}, config.session.secret);
@@ -249,10 +208,10 @@ var auth = {
 		 	}
 
 
-		    _tokenRequest.get(user,'user').then(function(token){
+		    db.tokenRequest.get(user,'user').then(function(token){
 		    	//if successfull update the token using save on the token obj
 		    	if(!token){
-		    		_tokenRequest.create({
+		    		db.tokenRequest.create({
 		    			'token': _token,
 		    			'user': user
 		    		}).then(success, error);
@@ -268,8 +227,8 @@ var auth = {
 	},
 
 	logout: function(req,res){
-		_tokenRequest.delete(req.user,'user').then(function(){
-			_user.Parse.User.logOut();
+		db.tokenRequest.delete(req.user,'user').then(function(){
+			db.user.Parse.User.logOut();
 			res.json({
 				payload: {},
 				message: "logout message triggered"

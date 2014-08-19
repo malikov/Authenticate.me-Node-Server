@@ -28,9 +28,7 @@ function ensureUnauthenticated(req, res, next) {
 
 //oauth callback
 router.get('/oauth/callback',api.auth.oauthCallback);
-router.get('/oauth/instagram',passport.authenticate('instagram'));
-router.get('/oauth/twitter',passport.authenticate('twitter'));
-
+router.get('/oauth/:type', api.auth.validateToken, api.auth.oauthLogin);
 
 
 //authentication
@@ -46,6 +44,12 @@ router.post('/users', api.auth.validateToken, ensureAuthenticated,api.users.crea
 router.get('/users/:id', api.auth.validateToken, ensureAuthenticated, api.users.get);
 router.put('/users/:id', api.auth.validateToken, ensureAuthenticated, api.users.update);
 router.delete('/users/:id', api.auth.validateToken, ensureAuthenticated, api.users.delete);
+
+//api/settings call, get all of them by users
+router.get('/settings/users', api.auth.validateToken, ensureAuthenticated, api.settings.all);
+
+//getting all settings for user with a specific id
+router.get('/settings/users/:id', api.auth.validateToken, ensureAuthenticated, api.settings.get);
 
 //api error
 router.get('/error', api.error);

@@ -4,11 +4,23 @@ var Parse  = require('parse').Parse;
 
 
 
-function dbBase(type){
+function dbBase(type,options){
+	var opts = options || {
+		ACL: {
+			read : true, 
+			write: true
+		}
+	}
+
 	this.type = type;
 	this.dbObj = Parse.Object.extend(type);
 	this.promise = Parse.Promise;
 	this.Parse = Parse;
+
+	if(opts.ACL){
+		this.ACL = opts.ACL; // tweak this with options passed in dbBase	
+	}
+	
 };
 
 // creating a new user means signing the user up :)
