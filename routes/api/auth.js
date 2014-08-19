@@ -5,13 +5,65 @@
 var util = require('util');
 
 var passport = require('passport');
+var moment = require('moment');
+var jwt  = require('jwt-simple');
+
 var config = require('../../config');
 var userDb = require('../../models/User');
+
+var	tokenRequestDb = require('../../models/TokenRequest');
+var tokenStorageDb = require('../../models/TokenStorage');
+
 var igNode = require('instagram-node').instagram();
 
+
+// get models db
 var _user = new userDb();
+var _tokenRequest = new tokenRequestDb();
+var _tokenStorage = new tokenStorageDb();
+
 
 var auth = {
+	validateToken: function(req, res, next){
+	    var token = req.headers["x-access-token"];
+	    if(token){
+	    	try {
+	    		//check agains the db is a token request is present
+	    		//if there's no token then the user must have logged out
+	    		_tokenRequest.get(token,'token').then(function(response){
+	    			
+	    			if(!response){
+	    				return next();	
+	    			}
+
+					var decoded = jwt.decode(response.get('token'), config.session.secret);
+
+					if (decoded.exp <= Date.now()) {
+						response.destroy();
+						return res.status(400).json({payload : {error: ''}, message : 'Access token has expired'});
+					}
+
+					_user.Parse.User.become(decoded.parseSession).then(function (user) {
+					  // The current user is now set to user.
+					  req.user = user
+					  return next();
+					}, function (error) {
+					  // The token could not be validated.
+					  return next();
+					});
+
+				},function(error){
+					return next();	
+				});
+
+			} catch (err) {			
+				return next()
+			}
+	    } else {
+			next();
+		}
+	},
+
 	//strategy callback
 	strategyCallback : function(accessToken, refreshToken, profile, done) {
 	    var output = JSON.parse(profile._raw);
@@ -173,27 +225,60 @@ var auth = {
 		    	return res.status(400).json({payload : {error: err}, message : info.message});
 		    }
 
-		    req.logIn(user, function(err) {
-		    	if (err) {
-		    		return res.status(400).json({payload : {error: err}, message : info.message});
-		 		}
-		 		
-		 		return res.json({
-		    		payload : user,
+		    // authentication usinge parse.user.login worked at this point
+		    // create a token with jwt-simple
+		    var expires = moment().add(30,'days').valueOf();				
+			var _token = jwt.encode({
+							iss: user.objectId,
+							exp: expires,
+							parseSession: user._sessionToken
+						}, config.session.secret);
+
+			var success = function (response){
+		    	return res.json({
+		    		payload : {
+		    			user : user,
+		    			token : _token
+		    		},
 		    		message : "Authentication successfull"
 		    	});
-			});
+		 	}
+
+		 	var error = function(error){
+		 		return res.status(400).json({payload : {error: error}, message : error.message});
+		 	}
+
+
+		    _tokenRequest.get(user,'user').then(function(token){
+		    	//if successfull update the token using save on the token obj
+		    	if(!token){
+		    		_tokenRequest.create({
+		    			'token': _token,
+		    			'user': user
+		    		}).then(success, error);
+		    	}else{
+			    	token.save({'token': _token},{
+						success: success,
+						error: error
+					});
+			    }
+		    },error);
+
 		})(req,res);
 	},
 
 	logout: function(req,res){
-		_user.Parse.User.logOut();
-		if(!_user.Parse.User.current()){
-			req.logout();
-		}
-		res.json({
-			payload: {},
-			message: "logout message triggered"
+		_tokenRequest.delete(req.user,'user').then(function(){
+			_user.Parse.User.logOut();
+			res.json({
+				payload: {},
+				message: "logout message triggered"
+			})
+		},function(error){
+			res.status(400).json({
+				payload: {},
+				message: "Logout failed"
+			});	
 		});
 	}
 }

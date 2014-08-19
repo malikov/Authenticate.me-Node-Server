@@ -24,7 +24,7 @@ var users = {
 			});
 		}
 
-		_user.get().then(success, error);
+		_user.get(null,null,{queryType: 'find'}).then(success, error);
 	},
 
 	// get user by id

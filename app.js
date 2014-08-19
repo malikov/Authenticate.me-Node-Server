@@ -39,6 +39,7 @@ var igStrategy = new InstagramStrategy(config.instagram, api.auth.strategyCallba
 var twitterStrategy = new TwitterStrategy(config.twitter, api.auth.strategyCallback);
 
 
+
 // setting passport with the strategies
 passport.use(parseStrategy);
 passport.use(igStrategy);
@@ -47,6 +48,7 @@ passport.use(twitterStrategy);
 passport.serializeUser(function(user, done) {
   done(null, user);
 });
+
 passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
@@ -55,7 +57,7 @@ passport.deserializeUser(function(obj, done) {
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type,X-Access-Token');
     next();
 }
 

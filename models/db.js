@@ -12,11 +12,11 @@ function dbBase(type){
 };
 
 // creating a new user means signing the user up :)
-dbBase.prototype.create = function(data){
+dbBase.prototype.create = function(data,restricted){
 	var promise = new this.promise();
     
-    // creating new user
-	var obj = new this.dbObj();
+    // creating new objects
+    var obj = new this.dbObj();
 
 	for (var attr in data){
 	    if (data.hasOwnProperty(attr)) {
@@ -42,21 +42,24 @@ dbBase.prototype.update = function(id,data){
 	
 	query.get(id, {
 	  success: function(obj) {
-	    
-	    for (var attr in data){
-		    if (data.hasOwnProperty(attr)) {
-				obj.set(attr, data[attr]);         
-		    }
-		}
-
-		obj.save(null, {
-			success: function(obj){
-				promise.resolve(obj); // resolve the promise
-			},
-			error: function(obj, error){
-				promise.reject(error); // reject the promise
+	    if(!obj){
+	    	return promise.reject(); // reject the promise
+	    }
+		    for (var attr in data){
+			    if (data.hasOwnProperty(attr)) {
+					obj.set(attr, data[attr]);         
+			    }
 			}
-		});
+
+			obj.save(null, {
+				success: function(obj){
+					promise.resolve(obj); // resolve the promise
+				},
+				error: function(obj, error){
+					promise.reject(error); // reject the promise
+				}
+			});
+		
 	  },
 	  error: function(obj, error) {
 	    // The object was not retrieved successfully.
@@ -67,7 +70,11 @@ dbBase.prototype.update = function(id,data){
 	return promise;
 }
 
-dbBase.prototype.get = function(data,type){
+dbBase.prototype.get = function(data,type,options){
+	var opts = options || {
+		queryType : 'first'
+	}
+
 	var promise = new this.promise();
 	var query = new this.Parse.Query(this.dbObj);
 
@@ -85,7 +92,7 @@ dbBase.prototype.get = function(data,type){
 		query.equalTo(type, data);
 	}
 
-	if(type === 'objectId'){
+	if(type === 'objectId' || opts.queryType === 'first'){
 		query.first({
 			success: successFct,
 			error: errorFct 
@@ -100,7 +107,7 @@ dbBase.prototype.get = function(data,type){
 	return promise;
 }
 
-dbBase.prototype.delete = function(id){
+dbBase.prototype.delete = function(data,type){
 	var promise = new this.promise();
 	var query = new this.Parse.Query(this.dbObj);
 
@@ -112,12 +119,18 @@ dbBase.prototype.delete = function(id){
 	var errorFct = function(obj, error) {
 	    promise.reject(error);
 	}
-	query.equalTo("objectId", id);
+	
+	query.equalTo(type, data);
 	query.first().then(function(obj){
+		if(!obj){
+	    	return errorFct(null,{code:0, message: 'delete Failed'});
+	    }
+		
 		obj.destroy({
 			success: successFct,
 			error: errorFct 
 		});
+		
 	});
 	
 	return promise;
