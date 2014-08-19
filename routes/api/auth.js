@@ -275,7 +275,7 @@ var auth = {
 				message: "logout message triggered"
 			})
 		},function(error){
-			res.status(400).json({
+			res.json({
 				payload: {},
 				message: "Logout failed"
 			});	
