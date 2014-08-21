@@ -20,11 +20,12 @@ userDb.prototype.create = function(data){
 	user.set("profileBg", data.profileBg);
 	user.set("username", data.username);
 	user.set("password", data.password);
-	user.set("name", data.fullname);
+	user.set("name", data.name);
 	user.set("email", data.email);
 	user.set("bio", data.bio);
 	user.set("website", data.website);
 	user.set("location", data.location);
+		    		
 	/*
 	if(data.location){
 		if(data.location.latitude && data.location.longitude){

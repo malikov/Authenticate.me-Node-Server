@@ -110,7 +110,8 @@ var auth = {
 		    	name: profile._json.data.full_name,
 		    	bio: profile._json.data.bio,
 		    	website: profile._json.data.website,
-		    	avatar: profile._json.data.profile_picture
+		    	avatar: profile._json.data.profile_picture,
+		    	location: ""
 		    }
 	    }
 
@@ -206,7 +207,8 @@ var auth = {
 		    			profileBg: response.profile.profileBg,
 		    			name: response.profile.name,
 		    			bio: response.profile.bio,
-		    			website: response.profile.website
+		    			website: response.profile.website,
+		    			location: response.profile.location
 		    		}).then(function(user){
 		    			db.tokenStorage.create({
 							'socialId': response.profile.id,
