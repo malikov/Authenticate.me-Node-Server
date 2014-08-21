@@ -32,7 +32,7 @@ config.instagram.callbackURL = config.web.baseUrl+"/oauth/callback?type=instagra
 // parse configuration
 config.parse.appId = process.env['PARSE_API_KEY_ID'] || "HP7gg6WbhMiORnxKM5j3Nd68UxLyDuUrci3QQAo9";
 config.parse.jsKey = process.env['PARSE_API_JS_KEY'] || "kvFRxM4UZfvoc6DZFdePMqhoS60Zf3r4LAhATecr";
-
+config.parse.masterKey = process.env['PARSE_MASTER_KEY'] || "jYL36dQJ4mM4ndSd5T3BEe0pA0xX0NgxcoS7gHLG";
 
 //session secret
 config.session.secret = process.env.EXPRESS_SECRET || "fa2d5588dbef6144f7aa8688577bf89c2ff0686a85d4cbffb0d59779d13ee9e0a5e2c2d9792212c6";

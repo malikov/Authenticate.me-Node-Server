@@ -15,12 +15,16 @@ userDb.prototype.create = function(data){
     
     // creating new user
 	var user = new this.dbObj();
+
+	user.set("avatar", data.avatar);
+	user.set("profileBg", data.profileBg);
 	user.set("username", data.username);
 	user.set("password", data.password);
 	user.set("name", data.fullname);
 	user.set("email", data.email);
 	user.set("bio", data.bio);
-	
+	user.set("website", data.website);
+	user.set("location", data.location);
 	/*
 	if(data.location){
 		if(data.location.latitude && data.location.longitude){

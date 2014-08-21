@@ -6,6 +6,7 @@ var util = require('util');
 
 var passport = require('passport');
 var moment = require('moment');
+var _ = require('underscore');
 var jwt  = require('jwt-simple');
 
 var config = require('../../config');
@@ -13,9 +14,52 @@ var db = require('../../models');
 
 var igNode = require('instagram-node').instagram();
 
+var _authTokenRequestCb = function(user,req,res){
+	// authentication successfull at this point
+	// create a token with jwt-simple
+	
+	var expires = moment().add(30,'days').valueOf();				
+	var _token = jwt.encode({
+			iss: user.id,
+			exp: expires,
+			parseSession: user._sessionToken
+		}, config.session.secret);
+
+	var success = function (response){
+	   	return res.json({
+	   		payload : {
+	   			user : user,
+	   			token : _token
+	   		},
+		   		message : "Authentication successfull"
+		});
+	}
+
+	var error = function(error){
+		return res.status(400).json({payload : {error: error}, message : error.message});
+	}
+
+
+	db.tokenRequest.get(user,'user').then(function(token){
+		//if successfull update the token using save on the token obj
+		if(!token){
+			db.tokenRequest.create({
+				'token': _token,
+				'user': user
+		  		}).then(success, error);
+		  	}else{
+		    	token.save({'token': _token},{
+					success: success,
+					error: error
+				});
+		    }
+	},error);
+}
+
 var auth = {
 	validateToken: function(req, res, next){
-	    var token = req.headers["x-access-token"];
+	    var token = req.query["x-access-token"] || req.headers["x-access-token"];
+
 	    if(token){
 	    	try {
 	    		//check agains the db is a token request is present
@@ -30,7 +74,7 @@ var auth = {
 
 					if (decoded.exp <= Date.now()) {
 						response.destroy();
-						return res.status(400).json({payload : {error: ''}, message : 'Access token has expired'});
+						return res.status(400).json({payload : {error: ''}, message : 'Invalid Request'});
 					}
 
 					db.user.Parse.User.become(decoded.parseSession).then(function (user) {
@@ -56,17 +100,61 @@ var auth = {
 
 	//strategy callback for oauth login
 	strategyCallback : function(accessToken, refreshToken, profile, done) {
-	    var response = {
-	    	provider : profile.provider,
-	    	user: profile,
-	    	accessToken: accessToken
+	    var user = {};
+
+	    if(profile.provider === 'instagram'){
+	    	user = {
+	    		id: profile._json.data.id,
+		    	username: profile._json.data.username,
+		    	email: "",
+		    	name: profile._json.data.full_name,
+		    	bio: profile._json.data.bio,
+		    	website: profile._json.data.website,
+		    	avatar: profile._json.data.profile_picture
+		    }
 	    }
 
+	    if(profile.provider === 'twitter'){
+	    	user = {
+	    		id: profile._json.id_str,
+		    	username: profile._json.username,
+		    	email: "",
+		    	name: profile._json.name,
+		    	bio: profile._json.description,
+		    	website: profile._json.url,
+		    	avatar: profile._json.profile_banner_url,
+		    	profileBg: profile._json.profile_image_url,
+		    	location: profile._json.location
+		    }
+	    }
 
+	    var response = {
+	    	provider : profile.provider,
+	    	profile: user,
+	    	accessToken: accessToken,
+	    	tokenStorage: false
+	    }
 
-	    process.nextTick(function () {
-	        return done(null, response);
-	    });
+	    var success = function(tokenStorage){
+	    	response.tokenStorage = tokenStorage;
+	    	process.nextTick(function () {
+	       	 return done(null, response);
+	    	});
+	    }
+
+	    var error = function(error){
+	    	process.nextTick(function () {
+	       	 return done(null, error);
+	   		});
+	   	}
+
+	    db.tokenStorage.get(null, null,{
+	    	where : {
+	    		socialId : profile.id,
+	    		provider : profile.provider
+	    	},
+	    	queryType : 'first'
+	    }).then(success, error);
 	},
 
 	oauthCallback : function(req,res){
@@ -84,20 +172,67 @@ var auth = {
 		    	return res.status(400).json({payload : {error: info}, message : "Authentication failed"});
 		 	}
 
-		    if (!user) { 
-		    	return res.status(400).json({payload : {error: info}, message : info.message});
+		    if (!response) { 
+		    	return res.status(400).json({payload : {error: info}, message : "Authentication failed : user canceled"});
 		    }
 
-		    /*
-				User is logged in so just link
-		    */
-		    if(req.user){
+		    var success = function (response){
+			   	return res.json({
+			   		payload : response,
+				   	message : "Social account linked"
+				});
+			}
 
+			var error = function(error){
+				return res.status(400).json({payload : {error: error}, message : error.message});
+			}
+
+		    if(!response.tokenStorage){
+		    	// no record found
+
+		    		//create user then link and add tokenRequest as well
+		    		var username = new Buffer(24);
+					var password = new Buffer(24);
+					_.times(24, function(i) {
+					   username.set(i, _.random(0, 255));
+					   password.set(i, _.random(0, 255));
+					});
+
+					//create the user and login	
+					db.user.create({
+		    			username: username.toString('base64'),
+		    			password: password.toString('base64'),
+		    			avatar: response.profile.avatar,
+		    			profileBg: response.profile.profileBg,
+		    			name: response.profile.name,
+		    			bio: response.profile.bio,
+		    			website: response.profile.website
+		    		}).then(function(user){
+		    			db.tokenStorage.create({
+							'socialId': response.profile.id,
+							'provider': response.provider,
+							'accessToken': response.accessToken,
+							'user': user
+				  		}).then(function(tStorage){
+				  			_authTokenRequestCb(user, req, res);
+				  		}, error);
+		    		}, error);
+		    	
 		    }else{
-		    	// User is not logged in so must create
+		    	// record found
+		    	if(response.accessToken != response.tokenStorage.get('accessToken')){
+		    		response.tokenStorage.save({'accessToken': response.accessToken},{
+						success: success,
+						error: error
+					});
+		    	}
+		    	
+		    	response.tokenStorage.get('user').fetch({ useMasterKey: true }).then(function(user){
+		    		_authTokenRequestCb(user,req,res);
+		    	},error);
 		    }
 
-		}); 
+		})(req,res); 
 	},
 
 	me : function(req,res){
@@ -142,16 +277,11 @@ var auth = {
 	  	});
 	},
 	oauthLogin: function(req, res, next){
-		if(req.user){
-			// little tweak
-			// the user is loged in this will certainly be a linking social account action
-			req.tokenUser = req.user;
-		}
-
 		var type = req.params.type;
 		
 		if(type === 'instagram' || type === 'twitter' || type === 'facebook'){
-			return passport.authenticate(type);
+			passport.authenticate(type)(req,res);
+			//return next();
 		}else{
 			return res.status(400).json({payload : {}, message : "Invalid Request"});
 		}
@@ -184,44 +314,7 @@ var auth = {
 		    	return res.status(400).json({payload : {error: err}, message : info.message});
 		    }
 
-		    // authentication usinge parse.user.login worked at this point
-		    // create a token with jwt-simple
-		    var expires = moment().add(30,'days').valueOf();				
-			var _token = jwt.encode({
-							iss: user.id,
-							exp: expires,
-							parseSession: user._sessionToken
-						}, config.session.secret);
-
-			var success = function (response){
-		    	return res.json({
-		    		payload : {
-		    			user : user,
-		    			token : _token
-		    		},
-		    		message : "Authentication successfull"
-		    	});
-		 	}
-
-		 	var error = function(error){
-		 		return res.status(400).json({payload : {error: error}, message : error.message});
-		 	}
-
-
-		    db.tokenRequest.get(user,'user').then(function(token){
-		    	//if successfull update the token using save on the token obj
-		    	if(!token){
-		    		db.tokenRequest.create({
-		    			'token': _token,
-		    			'user': user
-		    		}).then(success, error);
-		    	}else{
-			    	token.save({'token': _token},{
-						success: success,
-						error: error
-					});
-			    }
-		    },error);
+		    _authTokenRequestCb(user,req,res);
 
 		})(req,res);
 	},

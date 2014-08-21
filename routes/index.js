@@ -28,7 +28,7 @@ function ensureUnauthenticated(req, res, next) {
 
 //oauth callback
 router.get('/oauth/callback',api.auth.oauthCallback);
-router.get('/oauth/:type', api.auth.validateToken, api.auth.oauthLogin);
+router.get('/oauth/:type', api.auth.oauthLogin);
 
 
 //authentication

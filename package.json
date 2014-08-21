@@ -24,6 +24,7 @@
     "connect-flash": "~0.1.1",
     "stormpath": "~0.1.2",
     "parse": "x",
-    "moment": "x"
+    "moment": "x",
+    "underscore": "x"
   }
 }

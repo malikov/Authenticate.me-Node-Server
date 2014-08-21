@@ -22,7 +22,7 @@ var TwitterStrategy = require('passport-twitter').Strategy;
 
 //parse
 var parse = require('parse').Parse;
-parse.initialize(config.parse.appId,config.parse.jsKey);
+parse.initialize(config.parse.appId,config.parse.jsKey,config.parse.masterKey);
 
 //twitter node
 //var twitter = require('twitter');

@@ -83,8 +83,12 @@ dbBase.prototype.update = function(id,data){
 }
 
 dbBase.prototype.get = function(data,type,options){
+	/*
+		check for where and queryType
+	*/
 	var opts = options || {
-		queryType : 'first'
+		queryType : 'first',
+		where : false
 	}
 
 	var promise = new this.promise();
@@ -102,6 +106,14 @@ dbBase.prototype.get = function(data,type,options){
 	
 	if(data && type){
 		query.equalTo(type, data);
+	}
+
+	if(opts.where){
+		for (var attr in opts.where){
+		    if (opts.where.hasOwnProperty(attr)) {
+				query.equalTo(attr, opts.where[attr]);         
+		    }
+		}
 	}
 
 	if(type === 'objectId' || opts.queryType === 'first'){

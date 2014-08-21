@@ -1,20 +1,5 @@
 'use strict';
 
-/*
- * Serve JSON to our AngularJS client
-
- 	All models should be loaded here since the api interacts with the database
-
-	Api calls :
-
-	/api/users #all users in the system
-	/api/users/:id #fiter users by id
-	
-	/api/messages #all group by thread
-	/api/messages/users/:id # all message by threads for one userid
-	
-
- */
 var util = require('util');
 var express = require('express');
 
