@@ -64,6 +64,7 @@ dbBase.prototype.update = function(id,data){
 			}
 
 			obj.save(null, {
+				useMasterKey: true,
 				success: function(obj){
 					promise.resolve(obj); // resolve the promise
 				},

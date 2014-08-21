@@ -123,8 +123,8 @@ var auth = {
 		    	name: profile._json.name,
 		    	bio: profile._json.description,
 		    	website: profile._json.url,
-		    	avatar: profile._json.profile_banner_url,
-		    	profileBg: profile._json.profile_image_url,
+		    	avatar: profile._json.profile_image_url,
+		    	profileBg: profile._json.profile_banner_url,
 		    	location: profile._json.location
 		    }
 	    }
