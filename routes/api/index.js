@@ -8,6 +8,7 @@ exports.threads = require('./threads');
 exports.messages = require('./messages');
 exports.auth = require('./auth');
 exports.settings = require('./settings');
+exports.images = require('./images');
 
 exports.default = function (req,res){
 	return res.json({message : "default"});

@@ -9,9 +9,13 @@ config.parse= {};
 config.redis = {};
 config.web = {};
 config.session = {};
+config.folders = {};
 
 // baseUrl
-config.web.baseUrl = "http://authenticate-app-me.herokuapp.com";
+config.web.baseUrl = 'http://authenticate-app-me.herokuapp.com';
+
+// folder files
+config.folders.files = './uploads/';
 
 // twitter configuration
 config.twitter.token = process.env.TWITTER_TOKEN || "";

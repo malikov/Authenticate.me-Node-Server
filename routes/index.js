@@ -45,11 +45,17 @@ router.get('/users/:id', api.auth.validateToken, ensureAuthenticated, api.users.
 router.put('/users/:id', api.auth.validateToken, ensureAuthenticated, api.users.update);
 router.delete('/users/:id', api.auth.validateToken, ensureAuthenticated, api.users.delete);
 
-//api/settings call, get all of them by users
-router.get('/settings/users', api.auth.validateToken, ensureAuthenticated, api.settings.all);
+//api/images calls
+router.get('/images', api.auth.validateToken, ensureAuthenticated, api.images.all); // fetch all images
+router.get('/images/users/:id', api.auth.validateToken, ensureAuthenticated, api.images.all); // fetch all images uploaded by this user
+router.post('/images', api.auth.validateToken, ensureAuthenticated,api.images.create); // upload an image
+router.get('/images/:id', api.auth.validateToken, ensureAuthenticated, api.images.get); // get an image by id
+router.put('/images/:id', api.auth.validateToken, ensureAuthenticated, api.images.update); // update an image info
+router.delete('/images/:id', api.auth.validateToken, ensureAuthenticated, api.images.delete); // delete an image
 
-//getting all settings for user with a specific id
-router.get('/settings/users/:id', api.auth.validateToken, ensureAuthenticated, api.settings.get);
+//api/settings calls
+router.get('/settings/users', api.auth.validateToken, ensureAuthenticated, api.settings.all);
+router.get('/settings/users/:id', api.auth.validateToken, ensureAuthenticated, api.settings.get); //getting all settings for user with a specific id
 
 //api error
 router.get('/error', api.error);

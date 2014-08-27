@@ -13,6 +13,7 @@ var session = require('express-session');
 var flash = require('connect-flash');
 var routes = require('./routes/index');
 var api = require('./routes/api/index');
+var multer  = require('multer');
 
 
 // Strategies
@@ -63,11 +64,14 @@ var allowCrossDomain = function(req, res, next) {
 
 // setup
 app.use(allowCrossDomain);
+app.use(multer({
+    dest: config.folders.files,
+    fileSize:  3145728 // max file size 3 MB
+}));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
-
 app.use(session({
     secret: config.session.secret, 
     key: 'sid', 

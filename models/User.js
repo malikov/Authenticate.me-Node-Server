@@ -51,5 +51,4 @@ userDb.prototype.create = function(data){
 	return promise;
 }
 
-
 module.exports = userDb;

@@ -58,7 +58,7 @@ var _authTokenRequestCb = function(user,req,res){
 
 var auth = {
 	validateToken: function(req, res, next){
-	    var token = req.query["x-access-token"] || req.headers["x-access-token"];
+	    var token = req.params["x-access-token"] || req.query["x-access-token"] || req.headers["x-access-token"];
 
 	    if(token){
 	    	try {
@@ -79,7 +79,8 @@ var auth = {
 
 					db.user.Parse.User.become(decoded.parseSession).then(function (user) {
 					  // The current user is now set to user.
-					  req.user = user
+					  req.user = user;
+					  
 					  return next();
 					}, function (error) {
 					  // The token could not be validated.
