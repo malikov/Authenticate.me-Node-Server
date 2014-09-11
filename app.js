@@ -58,7 +58,7 @@ passport.deserializeUser(function(obj, done) {
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type,X-Access-Token');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Access-Token');
     next();
 }
 
@@ -66,8 +66,9 @@ var allowCrossDomain = function(req, res, next) {
 app.use(allowCrossDomain);
 app.use(multer({
     dest: config.folders.files,
-    fileSize:  3145728 // max file size 3 MB
+    fileSize:  config.folders.sizeupload // max file size 3 MB
 }));
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());

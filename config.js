@@ -16,6 +16,7 @@ config.web.baseUrl = 'http://authenticate-app-me.herokuapp.com';
 
 // folder files
 config.folders.files = './uploads/';
+config.folders.sizeupload = 3145728; // 3MB
 
 // twitter configuration
 config.twitter.token = process.env.TWITTER_TOKEN || "";

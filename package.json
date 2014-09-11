@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "install": "node bootstrap"
   },
   "dependencies": {
     "express": "~4.0.0",
@@ -14,7 +15,6 @@
     "debug": "~0.7.4",
     "stylus": "0.42.3",
     "passport": "~0.2.0",
-    "passport-stormpath": "~0.1.0",
     "passport-oauth2": "~1.1.2",
     "passport-twitter":"x",
     "passport-instagram": "x",
@@ -25,6 +25,8 @@
     "parse": "x",
     "moment": "x",
     "underscore": "x",
-    "multer" : "x"
+    "multer" : "x",
+    "jwt-simple": "x",
+    "passport-parse": "x"
   }
 }
