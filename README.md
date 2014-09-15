@@ -58,9 +58,9 @@ Replace for instagram
 
 Replace for parse.com
 ```bash
-	config.parse.appId = process.env['PARSE_API_KEY_ID'] || "HP7gg6WbhMiORnxKM5j3Nd68UxLyDuUrci3QQAo9";
-	config.parse.jsKey = process.env['PARSE_API_JS_KEY'] || "kvFRxM4UZfvoc6DZFdePMqhoS60Zf3r4LAhATecr";
-	config.parse.masterKey = process.env['PARSE_MASTER_KEY'] || "jYL36dQJ4mM4ndSd5T3BEe0pA0xX0NgxcoS7gHLG";
+	config.parse.appId = ['PARSE_API_KEY_ID'];
+	config.parse.jsKey = ['PARSE_API_JS_KEY'];
+	config.parse.masterKey = ['PARSE_MASTER_KEY'];
 ```
 
 Then run:
@@ -72,8 +72,10 @@ the server should launch at localhost:3000.
 
 Note : in order to test the oauth (instagram / twitter) authentication locally you'll want to change your host file on your windows machine (or use nginx with some reverse proxy settings) to match the url used for the callback.
 
-For instance if I was to test the app locally I'd change the host to make sure 127.0.0.1 points to authenticate-app-me.herokuapp.com (therefore accessing the server locally would yield : http://authenticate-app-me.herokuapp.com:3000 ). Then I'd change the callback url to match : authenticate-app-me.herokuapp.com:3000.
+For instance if I was to test the app locally I'd change the host to make sure 127.0.0.1 points to authenticate-app-me.herokuapp.com (therefore accessing the server locally would yield : http://authenticate-app-me.herokuapp.com:3000 ). Then I'd change the callback url to match : authenticate-app-me.herokuapp.com:3000. 
 
+
+once the server is live you can navigate to /oauth/instagram or oauth/twitter to test the login
 
 ### TODO
 tests
