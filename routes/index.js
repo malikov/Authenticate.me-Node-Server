@@ -49,18 +49,4 @@ router.delete('/users/:id', api.auth.validateToken, ensureAuthenticated, api.use
 router.get('/error', api.error);
 
 
-
-/*
-app.get('/threads', api.threads.all); //get all threads or topic
-app.get('/threads/:id',api.threads.getById);
-app.get('/threads/users', api.threads.groupByUsers); //get all threads or topic grouped by users
-app.get('/threads/users/:id', api.threads.getByUser); //get all thread in which users/id participated
-
-
-app.get('/messages',api.messages.all);
-app.get('/messages/:id',api.messages.getById);
-app.get('/messages/threads',api.messages.groupByThreads); // get messages grouped by threads
-app.get('/messages/threads/:threadId',api.messages.getByThread); //get all messages in thread with threadId
-*/
-
 module.exports = router;
